@@ -1,0 +1,40 @@
+<?php
+
+global $wp_query;
+$cat = $wp_query->query_vars['product_cat'];
+$catobject = get_term_by( 'slug', $cat, 'product_cat' );
+
+$args = array(
+'taxonomy' => 'product_cat',
+'parent' => 0,
+'hide_empty' => 0,
+'orderby' => 'name',
+);
+$categories = get_categories($args);
+<div>
+    <ul>
+        <li>
+        	<a href="#">Shop By Category</a>
+            <ul>
+			<?php foreach($categories as $category):  ?>
+                <?php $first_letter = strtoupper(substr($category->name,0,1)); ?>
+				<?php 
+
+				if ($first_letter != $curr_letter) :
+					if (++$post_count > 1) : //lets close this?>
+						</ul></li>
+					<?php endif; ?>
+
+					<li<?php echo strtoupper(substr($catobject->name,0,1)) == $first_letter ? " class='active'" : ""; ?>><a href="" class='hassubcats'><?php echo $first_letter;?></a><ul>
+					
+					<?php $curr_letter = $first_letter; 
+				endif; ?>
+
+				<li<?php echo $brandobject->term_id == $category->term_id || $brandobject->parent == $category->term_id ? ' class="active"' : '' ?>><a href="<?=get_term_link( $category );?>"><?php echo $category->name; ?></a></li>
+
+			<?php endforeach; ?>
+			<?php wp_reset_query(); // reset the query ?>
+           </ul>  
+        </li>
+    </ul>
+</div>
