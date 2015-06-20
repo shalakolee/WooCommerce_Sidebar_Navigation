@@ -1,0 +1,52 @@
+<?php
+
+global $wp_query;
+$cat = $wp_query->query_vars['product_cat']; //get the current category
+$catobject = get_term_by( 'slug', $cat, 'product_cat' ); // get the category object
+
+$args = array(
+'taxonomy' => 'product_cat',
+'parent' => 0,
+'hide_empty' => 0,
+'orderby' => 'name',
+);
+$categories = get_categories($args); // get all the categories
+?>
+<div>
+    <ul>
+        <li>
+        	<a href="#">Shop By Category</a>
+            <ul>
+			<?php foreach($categories as $category):  ?>
+				<?php //lets get the subcategories if there are any ?>
+				<?php $subcategories = get_categories( array('taxonomy' => 'product_cat','parent' => $category->term_id,'hide_empty' => 0,'orderby' => 'name',) ); ?>
+
+			    <li<?php echo $catobject->term_id == $category->term_id || $catobject->parent == $category->term_id ? ' class="active"' : '' ?>>
+			    	<a href="<?=get_term_link( $category );?>" <?php echo $subcategories ? "class='has_sub_cats'" : ""; ?> ><?php echo $category->name;?></a>
+			    	<?php if( $subcategories ): ?>
+			    		<ul>
+						<?php foreach( $subcategories as $subcategory ): ?>
+
+							<?php $subsubcategories = get_categories( array('taxonomy' => 'product_cat','parent' => $subcategory->term_id,'hide_empty' => 0,'orderby' => 'name',) ); ?>
+
+							<li<?php echo $catobject->term_id == $subcategory->term_id ? " class='active'" : '' ?> >
+							<a href="<?php echo get_term_link( $subcategory );?>"><?php echo $subcategory->name?></a>
+							</li>
+
+							<?php foreach($subsubcategories as $subsubcategory): ?>
+							<li<?php echo $catobject->term_id == $subsubcategory->term_id ? " class='active'" : '' ?> ><a href="<?php echo get_term_link( $subsubcategory );?>"> - <?php echo $subsubcategory->name?></a></li>
+							<?php endforeach; ?>
+
+							<?php //view all link ?>
+							<li<?php echo $catobject->term_id == $category->term_id ? " class='active'" : '' ?> ><a href="<?php echo get_term_link( $category );?>">All <?php echo $category->name?></a></li>
+
+						<?php endforeach; ?>
+			    		</ul>
+					<?php endif ?>
+			    </li>
+			<?php endforeach; ?>
+			<?php wp_reset_query(); // reset the query ?>
+           </ul>  
+        </li>
+    </ul>
+</div>
